@@ -1,0 +1,299 @@
+<template>
+<!--
+  <div class="table" >
+    <div class="row" v-for="(item, i) in tableData" :key="i">
+      <div class="table_item">{{item.date}}</div>
+      <div class="table_item">{{item.type}}</div>
+      <div class="table_item">{{item.income}}</div>
+      <div class="table_item">{{item.expend}}</div>
+      <div class="table_item">{{item.describe}}</div>
+    </div>
+    <button ></button>
+  </div>
+  -->
+  <div>
+    <div class="btn">
+      <button class="btn_item" @click="add">添加</button>
+    </div>
+    <el-table :data="tableData" style="width: 100%; highlight-current-row; margin-left:10px">
+      <el-table-column label="创建时间" width="180" style="">
+        <template #default="scope">
+          <div style="display: flex; align-items: center">
+            <span style="">{{ scope.row.date }}</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="类型" width="180">
+        <template #default="scope">
+          <div style="display: flex; align-items: center">
+            <span style="">{{ scope.row.type }}</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="收入" width="180">
+        <template #default="scope">
+          <div style="display: flex; align-items: center">
+            <span style="color: #00d053">{{ scope.row.income }}</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="支出" width="180">
+        <template #default="scope">
+          <div style="display: flex; align-items: center">
+            <span style="margin-left: 5px; color: #f56767">{{ scope.row.expend }}</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="描述" width="180">
+        <template #default="scope">
+          <div style="display: flex; align-items: center">
+            <span style="">{{ scope.row.describe }}</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column >
+        <template #default="scope">
+          <el-button size="small" type="warning" @click="handleEdit(scope.$index, scope.row)"
+            >编辑</el-button
+          >
+          <el-button
+            size="small"
+            type="danger"
+            @click="handleDelete(scope.$index, scope.row)"
+            >删除</el-button
+          >
+        </template>
+      </el-table-column>
+    </el-table>
+    <!-- 编辑和删除功能 -->
+    <div>
+      <el-dialog v-model="dialog.show" :title="dialog.title" @close="clearProfile()">
+        <el-form :model="profile">
+          <el-form-item label="创建日期" >
+            <el-input v-model="profile.date" autocomplete="off" />
+          </el-form-item>
+          <el-form-item label="类型" >
+            <el-select v-model="profile.type" class="m-2" placeholder="Select" size="small">
+            <el-option
+              v-for="(item,i) in type_list" 
+              :key="i"
+              :label="item"
+              :value="item"
+            />
+          </el-select>
+          </el-form-item>
+          <el-form-item label="收入" >
+            <el-input v-model="profile.income" autocomplete="off" />
+          </el-form-item>
+          <el-form-item label="支出" >
+            <el-input v-model="profile.expend" autocomplete="off" />
+          </el-form-item>
+          <el-form-item label="描述" >
+            <el-input v-model="profile.describe" autocomplete="off" />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="dialog.show = false">取消</el-button>
+            <el-button type="primary" @click="onSubmit()"
+              >确定</el-button
+            >
+          </span>
+        </template>
+      </el-dialog>
+    </div>
+    
+  </div>
+</template>
+
+<script>
+import store from '../store/index'
+import axios from '../http.js'
+import { ElMessage } from 'element-plus'
+//随机生成id
+import { nanoid } from 'nanoid'
+export default ({
+  components: {
+  },
+  data() {
+    return {
+      //数据库中的具体信息
+      tableData: [{}],
+      //添加、编辑等弹框的数据
+      dialog: {
+        show: false,
+        title: '',
+        option: ''
+      },
+      //目前进行操作的数据
+      profile: {
+        date: '',
+        type: '',
+        icome: '',
+        expend: '',
+        describe: '',
+        id: nanoid()
+      },
+      type_list: [
+        '门票',
+        '包场',
+        '食品',
+        '租球'
+      ],
+      
+    }
+  },
+  methods: {
+     async getProfile(){
+      await axios.get('http://localhost:4000/profiles').then(res => {
+        //console.log(res);
+        this.tableData = res.data
+        console.log(this.tableData);
+      }).catch(err => {
+        console.log(err);
+      })
+    },
+    add() {
+      this.dialog = {
+        show: true,
+        title: "添加资金信息",
+        option: 'add'
+      }
+    },
+    handleEdit(index, row) {
+      console.log(index, row)
+      this.dialog = {
+        show: true,
+        title: "修改资金信息",
+        option: 'update'
+      }
+      this.profile = {
+        date: row.date,
+        type: row.type,
+        income: row.income,
+        expend: row.expend,
+        describe: row.describe,
+        id: row.id
+      }
+    },
+    handleDelete(index, row) {
+      const id = {
+        id: row.id
+      }
+      //console.log(id);
+      axios.post('http://localhost:4000/profiles/delete', id).then(res => {
+        //console.log(res);
+        if(res.data.status === 0) {
+          ElMessage({
+            type: 'success',
+            message: '删除成功',
+          })
+          this.getProfile()
+        } else {
+          ElMessage({
+            type: 'error',
+            message: '删除失败',
+          })
+        }
+      }).catch(err => {
+        ElMessage({
+          type: 'error',
+          message: '删除失败',
+        })
+        console.log(err);
+      })
+    },
+    clearProfile() {
+      this.profile = {
+        date: '',
+        type: '',
+        icome: '',
+        expend: '',
+        describe: '',
+        id: nanoid()
+      }
+    },
+    onSubmit() {
+      //console.log(this.profile.id);
+      const url = this.dialog.option == 'add' ? 'add' : `update`
+      axios.post(`http://localhost:4000/profiles/${url}`, this.profile).then(res => {
+        console.log(res);
+        this.dialog.show = false
+        if(this.dialog.option == 'add') {
+          ElMessage({
+            type: 'success',
+            message: '添加成功',
+          })
+        } else {
+          ElMessage({
+            type: 'success',
+            message: '修改成功',
+          })
+        }
+        this.getProfile()
+      }).catch(err => {
+        if(this.dialog.option == 'add') {
+          ElMessage({
+            type: 'error',
+            message: '添加失败',
+          })
+        } else {
+          ElMessage({
+            type: 'error',
+            message: '修改失败',
+          })
+        }
+        console.log(err);
+      })
+    }
+  },
+  mounted() {
+    this.getProfile()
+  },
+  //setup() {
+  //  let tableData = reactive([{
+  //    date: "2022-5-3",
+  //    describe: "门票",
+  //    expend: "0",
+  //    id: "bdsbafb",
+  //    income: "30",
+  //    type: "门票",
+  //  }])
+  //  let tableData = reactive([{
+  //  }])
+  //  const getProfile = async () => {
+  //    await axios.get('http://localhost:4000/profiles').then(res => {
+  //      //console.log(res);
+  //      tableData = res.data
+  //      console.log(tableData);
+  //      return tableData
+  //    }).catch(err => {
+  //      console.log(err);
+  //    })
+  //  }
+  //  getProfile()
+  //  
+  //  return {
+  //    tableData,
+  //  }
+  //},
+})
+</script>
+
+<style scoped>
+.btn {
+  position: relative;
+  right: 0;
+}
+.btn_item {
+  width: 50px;
+  background-color: rgb(85, 179, 242);
+  border: 1px solid rgb(85, 179, 242);
+  border-radius: 3px;
+  margin-left: 980px;
+  margin-top: 15px;
+}
+.el-dialog {
+  z-index: 3;
+}
+</style>

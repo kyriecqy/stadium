@@ -1,0 +1,48 @@
+<template>
+  <div class="app">
+    <router-view />
+  </div>
+</template>
+
+
+<script>
+import store from './store/index'
+import jwt_decode from 'jwt-decode'
+import {onBeforeUnmount} from 'vue'
+export default {
+  name: 'App',
+  setup() {
+    
+    localStorage.clear()
+
+    //判断decode是否为空
+    const isEmpty = value => {
+      if(value == '' || value == undefined || value == null) return true
+      return false
+    }
+
+    if(localStorage.login_token) {
+      const decode = jwt_decode(localStorage.login_token)
+
+      store.dispatch('setUser',decode)
+      console.log(store.state.user);
+
+      store.dispatch('setAuthenticated', !isEmpty(decode))
+      console.log(store.state.isAuthenticated);
+    }
+
+  }
+}
+</script>
+
+
+<style>
+html,
+body,
+.app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+</style>

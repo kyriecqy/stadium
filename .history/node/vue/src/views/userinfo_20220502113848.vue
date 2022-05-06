@@ -1,0 +1,65 @@
+<template>
+  <div class="userinfo">
+    <div class="">
+      <div class="user">
+        <img :src="imgItem" alt="">
+      </div>
+    </div>
+    <div class="">
+      <div class="user_item">
+        <svg class="icon myicon" aria-hidden="true">
+          <use xlink:href="#icon-yonghu"></use>
+        </svg>
+        <div class="name">{{user.name}}</div>
+      </div>
+      <div class="user_item">
+        <svg class="icon myicon" aria-hidden="true">
+          <use xlink:href="#icon-setting-role"></use>
+        </svg>
+        <div class="identity">{{user.identify}}</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import store from '../store/index'
+export default ({
+  setup() { 
+    //将用户信息动态渲染到页面
+    let user = store.state.user
+    //vite 新的引入方法
+    let imgItem = new URL(user.avatar, import.meta.url).href
+    
+    return {
+      imgItem,
+      user
+    }
+  },
+})
+</script>
+
+<style scoped>
+.user {
+  background-color: rgb(209, 236, 249);
+}
+.user img {
+  height: 100px;
+  width: 100px;
+  border-radius: 50px;
+}
+.userinfo {
+  width: 100%;
+  background-color: rgb(138, 177, 196);
+}
+.elcol {
+  display: flex;
+  flex-direction: column;
+}
+.user_item {
+  display: flex;
+}
+.myicon {
+  font-size: 20px;
+}
+</style>

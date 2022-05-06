@@ -1,0 +1,20 @@
+<template>
+  <div class="home">
+    <img src="../assets/img/bg3.jpg" alt="">
+  </div>
+</template>
+
+<script>
+export default ({
+  setup() {
+    
+  },
+})
+</script>
+
+<style scoped>
+.home img {
+  width: 100%;
+  height: 100%;
+}
+</style>
