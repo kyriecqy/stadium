@@ -1,0 +1,170 @@
+<template>
+  <div>
+    <div class="btn">
+      <button class="btn_item" @click="show = true">添加</button>
+    </div>
+    <el-table :data="tableData" style="width: 100%; highlight-current-row; margin-left:10px">
+      <el-table-column label="创建时间" width="180" style="">
+        <template #default="scope">
+          <div style="display: flex; align-items: center">
+            <span style="">{{ scope.row.date }}</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="类型" width="180">
+        <template #default="scope">
+          <div style="display: flex; align-items: center">
+            <span style="">{{ scope.row.type }}</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="收入" width="180">
+        <template #default="scope">
+          <div style="display: flex; align-items: center">
+            <span style="color: #00d053">{{ scope.row.income }}</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="支出" width="180">
+        <template #default="scope">
+          <div style="display: flex; align-items: center">
+            <span style="margin-left: 5px; color: #f56767">{{ scope.row.expend }}</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="描述" width="180">
+        <template #default="scope">
+          <div style="display: flex; align-items: center">
+            <span style="">{{ scope.row.describe }}</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column >
+        <template #default="scope">
+          <el-button size="small" type="warning" @click="handleEdit(scope.$index, scope.row)"
+            >编辑</el-button
+          >
+          <el-button
+            size="small"
+            type="danger"
+            @click="handleDelete(scope.$index, scope.row)"
+            >删除</el-button
+          >
+        </template>
+      </el-table-column>
+    </el-table>
+    <div>
+      <el-dialog v-model="show" title="资金信息" @close="clearProfile()">
+        <el-form :model="profile">
+          <el-form-item label="创建日期" >
+            <el-input v-model="profile.date" autocomplete="off" />
+          </el-form-item>
+          <el-form-item label="类型" >
+            <el-select v-model="profile.type" class="m-2" placeholder="Select" size="small">
+            <el-option
+              v-for="(item,i) in type_list" 
+              :key="i"
+              :label="item"
+              :value="item"
+            />
+          </el-select>
+          </el-form-item>
+          <el-form-item label="收入" >
+            <el-input v-model="profile.income" autocomplete="off" />
+          </el-form-item>
+          <el-form-item label="支出" >
+            <el-input v-model="profile.expend" autocomplete="off" />
+          </el-form-item>
+          <el-form-item label="描述" >
+            <el-input v-model="profile.describe" autocomplete="off" />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="show = false">取消</el-button>
+            <el-button type="primary" @click="onSubmit()"
+              >确定</el-button
+            >
+          </span>
+        </template>
+      </el-dialog>
+    </div>
+    
+  </div>
+</template>
+
+<script>
+import store from '../store/index'
+import axios from '../http.js'
+import { ElMessage } from 'element-plus'
+//随机生成id
+import { nanoid } from 'nanoid'
+export default ({
+  components: {
+  },
+  data() {
+    return {
+      tableData: [{}],
+      show: false,
+      profile: {
+        date: '',
+        type: '',
+        icome: '',
+        expend: '',
+        describe: '',
+        id: nanoid()
+      },
+      type_list: [
+        '门票',
+        '包场',
+        '食品',
+        '租球'
+      ]
+    }
+  },
+  methods: {
+     async getProfile(){
+    },
+    handleEdit(index, row) {
+      console.log(index, row)
+    },
+    handleDelete(index, row) {
+      console.log(index, row)
+    },
+    clearProfile() {
+      this.profile = {
+        date: '',
+        type: '',
+        icome: '',
+        expend: '',
+        describe: '',
+        id: nanoid()
+      }
+    },
+    onSubmit() {
+      
+    }
+  },
+  mounted() {
+    this.getProfile()
+  }
+})
+</script>
+
+<style scoped>
+.btn {
+  position: relative;
+  right: 0;
+}
+.btn_item {
+  width: 50px;
+  background-color: rgb(85, 179, 242);
+  border: 1px solid rgb(85, 179, 242);
+  border-radius: 3px;
+  margin-left: 980px;
+  margin-top: 15px;
+}
+.el-dialog {
+  z-index: 3;
+}
+</style>
